@@ -20,6 +20,42 @@ De esta forma el Arduino responde ante una petición.
 ```Ruby 
 {"Estado": [ 0, true, false], "Llaves": [ false, false ], "Analogico": [ 100, 200], "Error": 0}
 ```
+## Sintaxis
+
+**Estado:**
+Es un array conformado por 3 elementos en el siguiente orden: [Laboratorio, SubLab, Inicio del experimento]
+
+|Laboratorio  | Sub Laboratorio  | Inicio del experimento | Laboratorio Seleccionado | Estado del experimento|
+|-|-----|-----|---------------------------------------------|--------|
+|1|true |true |Submuestreo, aliasing y efecto estroboscópico|Inicia  |
+|1|true |false|Submuestreo, aliasing y efecto estroboscópico|Finaliza|
+|1|false|true |Control automatico de posición               |Inicia  |
+|1|false|false|Control automatico de posición               |Finaliza|
+
+**Error:**
+Es una variable numerica que representa un mensaje de error.
+
+| Tipo de error |  Valor  |
+| ------------- | ------- |
+| Sin errores   |    0    |
+| Error 1       |    1    |
+| Error 2       |    2    |
+| Error 3       |    3    |
+
+## Elementos por Laboratorio
+
+***Submuestreo, aliasing y efecto estroboscópico***
+
+- Llaves:  [habilitacion_agua,habilitacion_luz]
+- Analogico: [frec_agua,frec_luz]
+  - Donde:
+    - frec_agua es la frecuencia de oscilación.
+    - frec_luz es la frecuencia de parpadeo.
+
+***Control automatico de posición***
+
+- Llaves: [habilitacion_regulacion]
+- Analogico: [exitacion,frecuencia,regulacion]
 
 ## **Interno Lab de control de posición**
 Cada vez que se quiere modificar algun dato en el dispositivo de control de posición. El Servidor debe enviar un:
@@ -35,21 +71,24 @@ WRITE + <JSON a enviar>
 >
 >Todas las variables son de 32 bits.
 >- **PID:**
->   - P
->   - I
->   - D
->- **Planta=[polo0,polo1,polo2,polo3,cero0,cero1,cero2,k]:** Indica la cantidad de polos y ceros de la planta.
+>   - P - Constante a modificar
+>   - I - Constante a modificar
+>   - D - Constante a modificar
+>- **Planta=[polo0,polo1,polo2,polo3,cero0,cero1,cero2,k]:** 
+>
+>   Indica la cantidad de polos y ceros de la planta.
 >   - Polos: Son las primeras 4 variables. Si se indica 1, el polo no se tiene en cuenta.
 >   - Ceros: Son las 3 variables siguientes. Si se indica 1, el cero no se tiene en cuenta.
 >   - K: Es la ultima variable. Corresponde a la ganancia. 
->   - Ej:[1,1,1,-2,1,1,-1,10] indica: $$F_s=\frac{10 \ (s+1)}{(s+2)} $$   
+>    
+>   **Ej:[1,1,1,-2,1,1,-1,10] indica:** $$F_s=\frac{10 \ (s+1)}{(s+2)} $$   
 > - **Exitacion=[tipo , frecuencia]:** Indica el tipo de exitación de entrada.
 >   - *Tipo:*
 >     - 0: Escalón
 >     - 1: Cuadrada
 >     - 2: Senoidal
 >     - 3: triangular
->   - *Frecuencia:* puede ser un numero entre 0 y 20000 expresado en Hz.
+>   - *Frecuencia:* puede ser un numero entre 0 y 1000 expresado en Hz.
 >- **Errores:**
 >   - 0: Sin errores
 >   - 1: Error 1
@@ -59,43 +98,18 @@ WRITE + <JSON a enviar>
 En cuanto a la obtención de los datos, el arduino está testeando constantemente el puerto serie y va almacenando los datos recibidos en una memoria para enviar por bloques al servidor.
 Desde el dispositivo de control de posición se recibe.
 ```Ruby 
-DATA <>
+DATA + <JSON a recibir>
 ```
-## Sintaxis
-
-**Estado**
-Es un array conformado por 3 elementos en el siguiente orden: [Laboratorio, SubLab, Inicio del experimento]
-
-|Laboratorio  | Sub Laboratorio  | Inicio del experimento | Laboratorio Seleccionado | Estado del experimento|
-|-|-----|-----|---------------------------------------------|--------|
-|1|true |true |Submuestreo, aliasing y efecto estroboscópico|Inicia  |
-|1|true |false|Submuestreo, aliasing y efecto estroboscópico|Finaliza|
-|1|false|true |Control automatico de posición               |Inicia  |
-|1|false|false|Control automatico de posición               |Finaliza|
-
-**Error**
-Es una variable numerica que representa un mensaje de error.
-
-| Tipo de error                         |  Valor  |
-| ----------------------------------    |---------|
-| Sin errores                           |    0    |
-| Error limites de angulo de azimut.    |    1    |
-| Error limites de angulo de elevación  |    2    |
-| Error de laboratorio incorrecto       |    3    |
-**Elementos por Laboratorio**
-
-***Submuestreo, aliasing y efecto estroboscópico***
-
-- Llaves:  [habilitacion_agua, habilitacion_luz]
-- Analogico: [frec_agua , frec_luz]
-  - Donde:
-    - frec_agua es la frecuencia de oscilación.
-    - frec_luz es la frecuencia de parpadeo.
-***Control automatico de posición***
-
-- Llaves: [habilitacion_regulacion ]
-- Analogico: [exitacion, frecuencia, regulacion]
-
+##### Json a recibir (ejemplo)
+```Ruby 
+{"Posicion":0, "Velocidad":0, "Tiempo":10,"Exitacion":[0,10]}
+```
+>Donde:
+> - **Tiempo:** Se refiere al tiempo que dura el experimento. Se establece un tiempo de default (60 s o 120 s). se expresa en segundos (s).
+> - **Velocidad:** Velocidad angular obtenida. Se mide en: [rad/s]
+> - **Posición:** Posición obtenida. Se mide en [m]
+> - **Exitación:** Señal y frecuencia de exitación utilizada.
+   
 ## Diagramas
 
 **Arduino Mega 2560**
