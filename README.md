@@ -21,9 +21,9 @@ _SubLab: Control automatico de posición_
 {"Estado": [ 1, true, false], "Exitacion": [ 0, 0 ], "Regulacion": [ 0, 0, 0 ], "Planta":[0,0,0,0,1,1,1,2]}
 ```
 >Donde:
-> - **Exitación** es un array de dos variables enteras de 32 bits que indican el tipo de exitación y su frecuencia.
+> - **Exitacion** es un array de dos variables enteras de 32 bits que indican el tipo de exitación y su frecuencia.
 >    ```"Exitacion":[Tipo, frecuencia] ```
-> - **Regulación** es un array de tres variables enteras de 32 bits que indican el tipo de regulación. ```"Regulacion":[P,I,D] ```
+> - **Regulacion** es un array de tres variables enteras de 32 bits que indican el tipo de regulación. ```"Regulacion":[P,I,D] ```
 > - **Planta** es un array de ocho variables de 32 bits que indican los polos, ceros y la constante k de la planta a utilizar.
 > ```"Planta":[Polo_0, Polo_1, Polo_2, Polo_3, Cero_0, Cero_1, Cero_2, k] ```
 
@@ -85,18 +85,15 @@ Es una variable numerica que representa un mensaje de error.
 
 ## **Protocolo Interno Lab de control de posición**
 Cada vez que se quiere modificar algun dato en el dispositivo de control de posición. El Servidor debe enviar un:
-```Ruby 
-WRITE + <JSON a enviar>
-```
 
 ##### Json a enviar (ejemplo)
 ```Ruby 
-{"PID": [0,0,0], "Planta": [0,0,0,0,0,0,0,0], "Exitacion": [0,0],"Errores":0}
+{"Regulacion": [0,0,0], "Planta": [0,0,0,0,0,0,0,0], "Exitacion": [0,0],"Errores":0}
 ```
 >Donde: 
 >
 >Todas las variables son de 32 bits.
->- **PID:**
+>- **Regulación:**
 >   - P - Constante a modificar
 >   - I - Constante a modificar
 >   - D - Constante a modificar
@@ -128,9 +125,7 @@ WRITE + <JSON a enviar>
 
 En cuanto a la obtención de los datos, el arduino está testeando constantemente el puerto serie y va almacenando los datos recibidos en una memoria para enviar por bloques al servidor.
 Desde el dispositivo de control de posición se recibe.
-```Ruby 
-DATA + <JSON a recibir>
-```
+
 ##### Json a recibir (ejemplo)
 ```Ruby 
 {"Posicion":0, "Velocidad":0, "Tiempo":10,"Exitacion":[0,10]}
