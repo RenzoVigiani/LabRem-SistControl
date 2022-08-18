@@ -51,7 +51,7 @@ _SubLab: Control automatico de posición_
 >     - 1: Cuadrada
 >     - 2: Senoidal
 >     - 3: triangular
->   - *Frecuencia:* puede ser un numero entre 0 y 1000 expresado en Hz.
+>   - *Frecuencia:* puede ser un numero entre 1 y 1000 expresado en Hz.
 > - Cada una de las siguientes variables son arrays de hasta 200 valores cada uno.
 >   - **Tiempo:** Se refiere al tiempo que dura el experimento. Se establece un tiempo de default (60 s o 120 s). se expresa en segundos (s).
 >   - **Velocidad:** Velocidad angular obtenida. Se mide en: [rad/s]

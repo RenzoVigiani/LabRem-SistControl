@@ -171,7 +171,7 @@ void loop(){
         }
         JsonArray Estado = doc["Estado"];
           num_Lab = Estado[0]; // 0 [Sist Dig], 1 [Sist Control], 2[Telecomunicaciones], 3[Fisica]
-          subLab = Estado[1]; // 0 [Sub Lab 1 con Cyclone II], 1 [SubLab 2 con Cyclone IV]
+          subLab = Estado[1]; // 0 [Sub Lab 1], 1 [SubLab 2]
           iniLab = Estado[2]; // 1 [Inicia Experimento], 0 [Finaliza Experimento]
         if(num_Lab==Numero_laboratorio){ // Si es el numero de laboratorio asigno variables recibidas.
           if(!subLab){
@@ -214,21 +214,21 @@ void loop(){
  */
 void Control(){
   if(num_Lab==Numero_laboratorio){ // Si es el lab correcto - Control de numero de sublab.
-    if (subLab and iniLab){ // Aliassing, submuestreo y efecto stroboscópico.
+    if (!subLab and iniLab){ // Aliassing, submuestreo y efecto stroboscópico.
       Serial.println("Sub-Lab 1");
-      if(hab_agua and frec_agua>0){
+      if(hab_agua and frec_agua>0){ // parlante.
         digitalWrite(Pin_Agua,HIGH);
-        delay(1000/frec_agua);
+        delay(500/frec_agua);
         digitalWrite(Pin_Agua,LOW);
-        delay(1000/frec_agua);
+        delay(500/frec_agua);
       }
-      if(hab_luz and frec_luz>0){
+      if(hab_luz and frec_luz>0){ // led.
         digitalWrite(Pin_Luz,HIGH);
-        delay(1000/frec_luz);
+        delay(500/frec_luz);
         digitalWrite(Pin_Luz,LOW);
-        delay(1000/frec_luz);        
+        delay(500/frec_luz);        
       }
-    }else if (!subLab and iniLab){ // Control de posicion
+    }else if (subLab and iniLab){ // Control de posicion
       Serial.println("Sub-Lab 2");
       if(!envio){
       Serial.println("Envío data una vez");
@@ -260,6 +260,7 @@ void Control(){
       Serial1.println();
       // Write JSON document
       serializeJsonPretty(doc, Serial1);
+      envio=1;
       }
     }
     else{ // Laboratorio parado.
@@ -271,9 +272,11 @@ void Control(){
       Errores=2;
   }
   if(Serial1.available()){ //Controlo lo que se envía por el serial 1.
+  //  Serial1.readBytesUntil('\r', input_ctrl_string, sizeof(input_ctrl_string)); // Tomo el mensaje recibido.
     input_ctrl_string=Serial1.readString();
     Serial.println("Se recibio de serial 1: " + input_ctrl_string);
     Serial.println("Datos json guardados");
+    // ver posible bandera.
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, input_ctrl_string); // Deserializo
     if (error){ // Analizo posibles errores.
